@@ -38,8 +38,9 @@ const AvailableMeals = function (props: AvailableMealsProps): JSX.Element {
   const mealsList = DUMMY_MEALS.map((meal) => (
     <MealItem
       key={meal.id}
+      id={meal.id}
       name={meal.name}
-      discription={meal.description}
+      description={meal.description}
       price={meal.price}
     />
   ));

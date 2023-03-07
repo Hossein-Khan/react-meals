@@ -1,31 +1,56 @@
-import React from "react";
+import React, { MouseEventHandler, useContext } from "react";
 import CartItemModel from "../../models/CartItemModel";
+import CartContext from "../../store/cart-context";
+import Modal from "../UI/Modal";
 
-import styles from "./Card.module.css";
+import styles from "./Cart.module.css";
+import CartItem from "./CartItem";
 
-type CardProps = {};
+type CardProps = {
+  onClose: MouseEventHandler<HTMLElement>;
+};
 
-const Card = function (props: CardProps): JSX.Element {
+const Cart = function (props: CardProps): JSX.Element {
+  const cartCtx = useContext(CartContext);
+  const hasItems = cartCtx.items.length > 0;
+
+  const addCartItemEventHamdler = function (item: CartItemModel) {
+    cartCtx.addItem(item);
+  };
+
+  const removeCartItemEventHamdler = function (id: string) {
+    cartCtx.removeItem(id);
+  };
+
   const cartItems = (
     <ul className={styles["cart-item"]}>
-      {[{ id: "c1", name: "Sushi", amount: 2, price: 12.99 }].map((item) => (
-        <li>{item.name}</li>
+      {cartCtx.items.map((item) => (
+        <CartItem
+          key={item.id}
+          item={item}
+          onAdd={addCartItemEventHamdler.bind(null, { ...item, amount: 1 })}
+          onRemove={removeCartItemEventHamdler.bind(null, item.id)}
+        />
       ))}
     </ul>
   );
+  const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
+
   return (
-    <div>
+    <Modal onBackdropClick={props.onClose}>
       {cartItems}
       <div className={styles.total}>
         <span>Total Amount</span>
-        <span>35.62</span>
+        <span>{totalAmount}</span>
       </div>
       <div className={styles.actions}>
-        <button className={styles["button--alt"]}>Close</button>
-        <button className={styles.button}>Order</button>
+        <button className={styles["button--alt"]} onClick={props.onClose}>
+          Close
+        </button>
+        {hasItems && <button className={styles.button}>Order</button>}
       </div>
-    </div>
+    </Modal>
   );
 };
 
-export default Card;
+export default Cart;
